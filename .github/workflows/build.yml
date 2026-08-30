@@ -1,1 +1,52 @@
+name: Build Android APK
 
+on:
+  push:
+      branches: [main, master]
+        workflow_dispatch:
+
+        jobs:
+          build:
+              runs-on: ubuntu-latest
+
+                  steps:
+                        - name: Checkout code
+                                uses: actions/checkout@v4
+
+                                      - name: Setup Node.js
+                                              uses: actions/setup-node@v4
+                                                      with:
+                                                                node-version: '20'
+                                                                          cache: 'npm'
+
+                                                                                - name: Install dependencies
+                                                                                        run: npm install
+
+                                                                                              - name: Setup Java
+                                                                                                      uses: actions/setup-java@v4
+                                                                                                              with:
+                                                                                                                        distribution: 'temurin'
+                                                                                                                                  java-version: '17'
+
+                                                                                                                                        - name: Setup Android SDK
+                                                                                                                                                uses: android-actions/setup-android@v3
+
+                                                                                                                                                      - name: Install Expo CLI
+                                                                                                                                                              run: npm install -g expo-cli
+
+                                                                                                                                                                    - name: Create .env file
+                                                                                                                                                                            run: echo "NODE_ENV=production" > .env
+
+                                                                                                                                                                                  - name: Prebuild Android
+                                                                                                                                                                                          run: npx expo prebuild --platform android --clean
+                                                                                                                                                                                                  env:
+                                                                                                                                                                                                            NODE_ENV: production
+
+                                                                                                                                                                                                                  - name: Unzip project
+                                                                                                                                                                                                                          run: |
+                                                                                                                                                                                                                                    unzip predzakaz-androidide.zip -d extracted
+                                                                                                                                                                                                                                              cp -r extracted/predzakaz/. .
+
+                                                                                                                                                                                                                                                    - name: Build Debug APK
+                                                                                                                                                                                                                                                            run: |
+                                                                                                                                                                                                                                                                      cd andr
